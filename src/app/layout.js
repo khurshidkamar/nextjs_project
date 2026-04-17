@@ -1,5 +1,6 @@
 import Navigation from "./components/Navigation";
 import Footer from "./components/Footer";
+import ThemeProvider from "./context/ThemeContext";
 import "./globals.css";
 
 export const metadata = {
@@ -10,10 +11,12 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className="min-h-screen flex flex-col">
-        <Navigation />
-        <main className="flex-grow p-6">{children}</main>
-        <Footer />
+      <body className="min-h-screen flex flex-col bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-gray-100">
+        <ThemeProvider>
+          <Navigation />
+          <main className="flex-grow p-6">{children}</main>
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   );
