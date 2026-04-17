@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "text": "Hello from the server 👋"
+  },
+  {
+    "id": 2,
+    "text": "Next.js API routes are awesome 🚀"
+  },
+  {
+    "id": 3,
+    "text": "hello"
+  }
+]

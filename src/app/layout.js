@@ -1,6 +1,7 @@
 import Navigation from "./components/Navigation";
 import Footer from "./components/Footer";
 import ThemeProvider from "./context/ThemeContext";
+import ToasterClient from "./components/ToasterClient";
 import "./globals.css";
 
 export const metadata = {
@@ -17,6 +18,7 @@ export default function RootLayout({ children }) {
           <main className="flex-grow p-6">{children}</main>
           <Footer />
         </ThemeProvider>
+        <ToasterClient />
       </body>
     </html>
   );
