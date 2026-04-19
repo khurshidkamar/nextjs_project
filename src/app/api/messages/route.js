@@ -1,33 +1,47 @@
-import { promises as fs } from "fs";
-import path from "path";
-
-const filePath = path.join(process.cwd(), "src/data/messages.json");
+import db from "@/lib/dbSetup";
+import { broadcastMessage } from "./stream/route";
 
 export async function GET() {
   try {
-    const data = await fs.readFile(filePath, "utf8");
-    const messages = JSON.parse(data);
+    const messages = db
+      .prepare(
+        `SELECT m.id,m.text, m.created_at, u.name AS user_name 
+        FROM messages m
+        LEFT JOIN users u ON m.user_id=u.id
+        ORDER BY m.id ASC`,
+      )
+      .all();
     return Response.json(messages);
   } catch (error) {
     console.error("Error reading messages:", error);
-    return Response.json({ error: "Failed to road messages" }, { status: 500 });
+    return Response.json({ error: "Failed to load messages" }, { status: 500 });
   }
 }
 
 export async function POST(request) {
   try {
-    const newMessage = await request.json();
-    const data = await fs.readFile(filePath, "utf8");
-    const messages = JSON.parse(data);
+    const { text } = await request.json();
 
-    const messageWithId = {
-      id: messages.length ? messages[messages.length - 1].id + 1 : 1,
-      text: newMessage.text,
-    };
+    const userIds = db
+      .prepare("SELECT id FROM users")
+      .all()
+      .map((u) => u.id);
 
-    messages.push(messageWithId);
+    const randomUser = userIds[Math.floor(Math.random() * userIds.length)];
 
-    await fs.writeFile(filePath, JSON.stringify(messages, null, 2));
+    const stmt = db.prepare("INSERT INTO messages (user_id,text) VALUES (?,?)");
+    const result = stmt.run(randomUser, text);
+
+    const messageWithId = db
+      .prepare(
+        `SELECT m.id, m.text, m.created_at, u.name AS user_name 
+        FROM messages m
+        LEFT JOIN users u ON m.user_id=u.id
+        WHERE m.id = ?`,
+      )
+      .get(result.lastInsertRowid);
+
+    broadcastMessage(messageWithId);
 
     return Response.json({
       success: true,

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 export default function MessagesPage() {
   const [messages, setMessages] = useState([]);
@@ -23,6 +24,23 @@ export default function MessagesPage() {
   useEffect(() => {
     fetchMessages();
   }, []);
+
+  useEffect(() => {
+    const eventSource = new EventSource("/api/messages/stream");
+    eventSource.onmessage = (event) => {
+      const newMessage = JSON.parse(event.data);
+
+      if (newMessage.type === "connected") {
+        toast.success("Connected Successfully");
+      } else {
+        setMessages((prev) => [...prev, newMessage]);
+      }
+    };
+    return () => {
+      eventSource.close();
+    };
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!newMsg.trim()) return;
@@ -56,7 +74,9 @@ export default function MessagesPage() {
             key={msg.id}
             className="p-3 border rounded-md bg-gray-100 dark:bg-gray-800"
           >
-            {msg.text}
+            <p className="font-semibold">{msg.user_name || "Anonymous"}</p>
+            <p>{msg.text}</p>
+            <span className="text-xs text-gray-500">{msg.created_at}</span>
           </li>
         ))}
       </ul>
