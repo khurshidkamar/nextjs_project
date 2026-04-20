@@ -3,6 +3,17 @@ import CourseList from "./CourseList";
 export const metadata = {
   title: "NextJS Course",
   description: "Explore our courses",
+  keywords: ["Next.js", "courses", "programming"],
+  openGraph: {
+    title: "Nextjs Course",
+    description: "Learn Next.js",
+    url: "www.www.www",
+    siteName: "WWW",
+    type: "website",
+    locale: "en_US",
+    images: [{}],
+  },
+  twitter: {},
 };
 async function getCourses() {
   const res = await fetch("https://codepion.com/api/courses", {
